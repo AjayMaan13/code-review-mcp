@@ -21,7 +21,7 @@ async def list_open_prs() -> str:
 
     output = []
     for pr in prs:
-        output.append(f"#{pr['number']} - {pr['title']} (by {pr['user']['author']})")
+        output.append(f"#{pr['number']} - {pr['title']} (by {pr['user']['login']})")
 
     return "\n".join(output) if output else "No open pull requests found."
 
