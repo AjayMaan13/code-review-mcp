@@ -15,12 +15,13 @@ async def list_open_prs() -> str:
     prs = await github.list_open_prs()
 
     # convert to simple readable text
+    # Sometimes your client might return: "Error: Unauthorized", so return it 
     if isinstance(prs, str):
-        return prs
+        return f"Error: {prs}"
 
     output = []
     for pr in prs:
-        output.append(f"#{pr['number']} - {pr['title']} (by {pr['author']})")
+        output.append(f"#{pr['number']} - {pr['title']} (by {pr['user']['author']})")
 
     return "\n".join(output) if output else "No open pull requests found."
 
