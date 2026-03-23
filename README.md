@@ -47,7 +47,7 @@ Add the following inside `mcpServers` (Make sure to replace the paths and variab
       ],
       "env": {
         "GITHUB_TOKEN": "your_github_personal_access_token",
-        "GITHUB_REPO": "ajaymaan13/fraudnet-ai"
+        "GITHUB_REPO": "owner/repo_name"
       }
     }
   }

@@ -19,7 +19,27 @@ class GitHubClient:
             "Authorization": f"Bearer {GITHUB_TOKEN}",
             "Accept": "application/vnd.github+json",
         }
-
+    
+    async def list_repos(self):
+        """Returns a list of all public repos created by me"""
+        url = f"{BASE_URL}/user/repos"
+        
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=self.headers)
+            response.raise_for_status()
+            repos = response.json()
+            
+            
+        output = []
+        for repo in repos:
+            if repo['private'] == False:
+                output.append({
+                    "name": repo["name"]
+                    }) 
+        
+        return output
+            
+    
     async def list_open_prs(self):
         """Return a list of open pull requests (number, title, author)."""
         url = f"{BASE_URL}/repos/{GITHUB_REPO}/pulls"

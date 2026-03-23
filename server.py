@@ -7,6 +7,25 @@ github = GitHubClient()
 
 
 @mcp.tool()
+async def list_public_repos() -> str:
+    """
+    Get a list of all public repos created by the user and return them
+    """
+
+    try:
+        repos = await github.list_repos()
+        
+        output = []
+        for repo in repos:
+            output.append(f"{repo['name']}")
+        
+        return "\n".join(output) if output else "No Repos found."
+    except Exception as e:
+        return f"Error getting repos: {e}"
+    
+    
+
+@mcp.tool()
 async def list_open_prs() -> str:
     """
     Get a list of all open pull requests in the repository.

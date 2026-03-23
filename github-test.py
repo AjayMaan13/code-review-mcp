@@ -4,6 +4,9 @@ from github_client import GitHubClient
 
 async def main():
     client = GitHubClient()
+    print("--- Testing list_repos() ---")
+    repos = await client.list_repos()
+    print(json.dumps(repos, indent=2))
     
     print("--- Testing list_open_prs() ---")
     prs = await client.list_open_prs()
