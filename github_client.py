@@ -3,7 +3,9 @@ import sys
 import httpx
 from dotenv import load_dotenv
 
-load_dotenv()
+# Try to find .env file locally relative to where the script is located
+env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
+load_dotenv(dotenv_path=env_path)
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 GITHUB_REPO = os.getenv("GITHUB_REPO")
