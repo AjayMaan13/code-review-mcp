@@ -8,7 +8,6 @@ env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".env")
 load_dotenv(dotenv_path=env_path)
 
 GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-GITHUB_REPO = os.getenv("GITHUB_REPO")
 
 BASE_URL = "https://api.github.com"
 
@@ -40,9 +39,9 @@ class GitHubClient:
         return output
             
     
-    async def list_open_prs(self):
+    async def list_open_prs(self, repo_full_name: str):
         """Return a list of open pull requests (number, title, author)."""
-        url = f"{BASE_URL}/repos/{GITHUB_REPO}/pulls"
+        url = f"{BASE_URL}/repos/{repo_full_name}/pulls"
 
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -58,9 +57,9 @@ class GitHubClient:
             })
         return result
 
-    async def get_pull_request(self, pr_number: int):
+    async def get_pull_request(self, repo_full_name: str, pr_number: int):
         """Return PR title, description, and branch info."""
-        url = f"{BASE_URL}/repos/{GITHUB_REPO}/pulls/{pr_number}"
+        url = f"{BASE_URL}/repos/{repo_full_name}/pulls/{pr_number}"
         
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -74,9 +73,9 @@ class GitHubClient:
             "base_branch": pr["base"]["ref"]
         }
     
-    async def get_pr_diff(self, pr_number: int) -> str:
+    async def get_pr_diff(self, repo_full_name: str, pr_number: int) -> str:
         """Return the raw unified diff of a specific pull request."""
-        url = f"{BASE_URL}/repos/{GITHUB_REPO}/pulls/{pr_number}"
+        url = f"{BASE_URL}/repos/{repo_full_name}/pulls/{pr_number}"
         headers = self.headers.copy()
         headers["Accept"] = "application/vnd.github.v3.diff"
         
@@ -85,9 +84,9 @@ class GitHubClient:
             response.raise_for_status()
             return response.text
 
-    async def get_pr_files(self, pr_number: int):
+    async def get_pr_files(self, repo_full_name: str, pr_number: int):
         """Return a list of changed files and their patches."""
-        url = f"{BASE_URL}/repos/{GITHUB_REPO}/pulls/{pr_number}/files"
+        url = f"{BASE_URL}/repos/{repo_full_name}/pulls/{pr_number}/files"
         
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
@@ -103,9 +102,9 @@ class GitHubClient:
             })
         return result
 
-    async def get_file_content(self, path: str, branch: str) -> str:
+    async def get_file_content(self, repo_full_name: str, path: str, branch: str) -> str:
         """Return the raw content of any file."""
-        url = f"{BASE_URL}/repos/{GITHUB_REPO}/contents/{path}"
+        url = f"{BASE_URL}/repos/{repo_full_name}/contents/{path}"
         headers = self.headers.copy()
         headers["Accept"] = "application/vnd.github.v3.raw"
         params = {"ref": branch}
@@ -115,9 +114,9 @@ class GitHubClient:
             response.raise_for_status()
             return response.text
 
-    async def list_files(self, path: str = ""):
+    async def list_files(self, repo_full_name: str, path: str = ""):
         """Return a directory listing at a path."""
-        url = f"{BASE_URL}/repos/{GITHUB_REPO}/contents/{path}"
+        url = f"{BASE_URL}/repos/{repo_full_name}/contents/{path}"
         
         async with httpx.AsyncClient() as client:
             response = await client.get(url, headers=self.headers)
