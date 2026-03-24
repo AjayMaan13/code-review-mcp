@@ -6,6 +6,29 @@ mcp = FastMCP("code-reviewer")
 github = GitHubClient()
 
 
+# --- RESOURCES ---
+
+@mcp.resource("github://{owner}/{repo}/pulls/{pr_number}/diff")
+async def get_pr_diff_resource(owner: str, repo: str, pr_number: int) -> str:
+    """Read the raw diff of a pull request as a resource."""
+    repo_name = f"{owner}/{repo}"
+    try:
+        return await github.get_pr_diff(repo_name, pr_number)
+    except Exception as e:
+        return f"Error getting PR diff: {e}"
+
+@mcp.resource("github://{owner}/{repo}/blob/{branch}/{path}")
+async def get_file_content_resource(owner: str, repo: str, branch: str, path: str) -> str:
+    """Read a specific file from the repository as a resource."""
+    repo_name = f"{owner}/{repo}"
+    try:
+        return await github.get_file_content(repo_name, path, branch)
+    except Exception as e:
+        return f"Error getting file content: {e}"
+
+
+# --- TOOLS ---
+
 @mcp.tool()
 async def list_public_repos() -> str:
     """
