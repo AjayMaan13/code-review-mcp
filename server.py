@@ -59,11 +59,28 @@ async def get_pr_resource(owner: str, repo: str, pr_number: int) -> str:
     except Exception as e:
         return f"Error getting PR: {e}"
 
+# File resource (branch-aware) — URI: github://{owner}/{repo}/blob/{branch}/{path}
+# Use this when the branch is already known (e.g. from PR head branch).
 @mcp.resource("github://{owner}/{repo}/blob/{branch}/{path}")
 async def get_file_content_resource(owner: str, repo: str, branch: str, path: str) -> str:
-    """Read a specific file from the repository as a resource."""
+    """Read a specific file from a known branch."""
     repo_name = f"{owner}/{repo}"
     try:
+        return await github.get_file_content(repo_name, path, branch)
+    except Exception as e:
+        return f"Error getting file content: {e}"
+
+
+# File resource (default branch) — URI: github://{owner}/{repo}/contents/{path}
+# Use this when the branch is unknown — auto-resolves the repo's default branch.
+# Easier for Claude to use since it doesn't need branch context upfront.
+@mcp.resource("github://{owner}/{repo}/contents/{path}")
+async def get_file_content_default_resource(owner: str, repo: str, path: str) -> str:
+    """Read a specific file from the repo's default branch."""
+    repo_name = f"{owner}/{repo}"
+    try:
+        repo_meta = await github.get_repo(repo_name)
+        branch = repo_meta["default_branch"]
         return await github.get_file_content(repo_name, path, branch)
     except Exception as e:
         return f"Error getting file content: {e}"
