@@ -39,6 +39,27 @@ class GitHubClient:
         return output
             
     
+    async def get_repo(self, repo_full_name: str):
+        """Return metadata for a repository."""
+        url = f"{BASE_URL}/repos/{repo_full_name}"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=self.headers)
+            response.raise_for_status()
+            r = response.json()
+
+        return {
+            "name": r["full_name"],
+            "description": r.get("description") or "",
+            "default_branch": r["default_branch"],
+            "stars": r["stargazers_count"],
+            "forks": r["forks_count"],
+            "open_issues": r["open_issues_count"],
+            "language": r.get("language") or "",
+            "private": r["private"],
+            "url": r["html_url"],
+        }
+
     async def list_open_prs(self, repo_full_name: str):
         """Return a list of open pull requests (number, title, author)."""
         url = f"{BASE_URL}/repos/{repo_full_name}/pulls"

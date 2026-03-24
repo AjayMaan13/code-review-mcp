@@ -23,7 +23,6 @@ uv sync   # Or if using pip: python3 -m venv .venv && source .venv/bin/activate 
 3. Create a `.env` file from the sample (or copy this):
 ```dotenv
 GITHUB_TOKEN=your_personal_access_token
-GITHUB_REPO=owner/repo_name
 ```
 
 ## Adding to Claude Desktop
@@ -47,7 +46,6 @@ Add the following inside `mcpServers` (Make sure to replace the paths and variab
       ],
       "env": {
         "GITHUB_TOKEN": "your_github_personal_access_token",
-        "GITHUB_REPO": "owner/repo_name"
       }
     }
   }
@@ -55,6 +53,11 @@ Add the following inside `mcpServers` (Make sure to replace the paths and variab
 ```
 
 *Restart Claude Desktop entirely for the changes to take effect.*
+
+## MCP Primitives
+
+> **Resources** = direct access to known data
+> **Tools** = ways to discover, compute, or decide
 
 ## Tools Provided
 
