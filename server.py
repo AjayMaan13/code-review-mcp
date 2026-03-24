@@ -6,6 +6,20 @@ mcp = FastMCP("code-reviewer")
 
 github = GitHubClient()
 
+# Max diff characters allowed in any single context payload.
+# Priority on truncation: keep metadata + file list, trim the diff.
+MAX_DIFF_CHARS = 30_000
+
+def _guard_diff(diff: str) -> str:
+    if len(diff) <= MAX_DIFF_CHARS:
+        return diff
+    dropped = len(diff) - MAX_DIFF_CHARS
+    return (
+        diff[:MAX_DIFF_CHARS]
+        + f"\n\n[DIFF TRUNCATED — {dropped:,} characters omitted."
+        + " Use the get_pr_diff tool directly to fetch the full diff.]"
+    )
+
 
 # --- RESOURCES ---
 
@@ -54,7 +68,7 @@ async def get_pr_resource(owner: str, repo: str, pr_number: int) -> str:
             f"Description: {pr['description']}\n"
             f"Branch: {pr['head_branch']} → {pr['base_branch']}\n\n"
             f"Changed Files:\n{files_list}\n\n"
-            f"Diff:\n{diff}"
+            f"Diff:\n{_guard_diff(diff)}"
         )
     except Exception as e:
         return f"Error getting PR: {e}"
@@ -108,14 +122,14 @@ async def security_review(repo_name: str, pr_number: int) -> str:
             f"Description: {pr['description']}\n"
             f"Branch: {pr['head_branch']} → {pr['base_branch']}\n\n"
             f"Changed Files:\n{files_list}\n\n"
-            f"Diff:\n{diff}"
+            f"Diff:\n{_guard_diff(diff)}"
         )
     except Exception as e:
         return f"Error loading PR for security review: {e}"
 
-    return f"""You are a security-focused code reviewer. Analyze the pull request below and report any security issues you find.
+    return f"""You are a security-focused code reviewer. Analyze the pull request below.
 
-Check specifically for:
+Check for:
 - Injection vulnerabilities (SQL, command, LDAP, XPath)
 - Broken authentication or session management
 - Sensitive data exposure (secrets, tokens, PII in logs or responses)
@@ -127,13 +141,21 @@ Check specifically for:
 - Missing authorization checks (can user A access user B's data?)
 - Use of deprecated or known-unsafe functions
 
-For each issue found, provide:
-1. File and line number
-2. Severity: Critical / High / Medium / Low
-3. What the vulnerability is
-4. A concrete fix
+Output format — use exactly this structure:
 
-If no issues are found, say so explicitly.
+## Summary
+One sentence on the overall security posture of this PR.
+
+## Findings
+
+| Severity | File | Line | Issue | Fix |
+|----------|------|------|-------|-----|
+| Critical/High/Medium/Low | filename | line # | what the vulnerability is | concrete fix |
+
+Add one row per finding. If no issues found, write "No findings." in the table body.
+
+## Verdict
+APPROVED / APPROVED WITH COMMENTS / CHANGES REQUIRED — one sentence justifying it.
 
 ---
 
@@ -160,7 +182,7 @@ async def explain_to_junior(repo_name: str, pr_number: int) -> str:
             f"Description: {pr['description']}\n"
             f"Branch: {pr['head_branch']} → {pr['base_branch']}\n\n"
             f"Changed Files:\n{files_list}\n\n"
-            f"Diff:\n{diff}"
+            f"Diff:\n{_guard_diff(diff)}"
         )
     except Exception as e:
         return f"Error loading PR: {e}"
@@ -210,6 +232,15 @@ Here is what to cover, in this order:
 6. Are there any non-obvious conventions or patterns in the code worth flagging?
 
 Be concrete. Read the actual files — don't guess. If something is unclear after reading, say so.
+
+Output format — use exactly these sections in this order:
+
+## What It Does
+## Project Structure
+## Entry Point
+## Key Modules
+## Local Setup
+## Conventions & Gotchas
 
 ---
 
