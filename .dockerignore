@@ -1,0 +1,31 @@
+# .dockerignore works like .gitignore — files listed here are excluded from
+# the Docker build context (what gets sent to the Docker daemon on `docker build`).
+# Keeping the build context small = faster builds.
+
+# Virtual environment — dependencies are reinstalled inside the container by uv.
+.venv/
+
+# Python bytecode — not needed, gets regenerated inside the container.
+__pycache__/
+*.pyc
+*.pyo
+
+# The .env file contains your GITHUB_TOKEN.
+# It must NEVER be copied into the image — anyone who pulls the image
+# would have your token. Pass the token at runtime via the Claude Desktop config.
+.env
+
+# Git history — not needed inside the container.
+.git/
+.gitignore
+.gitattributes
+
+# Tests — not needed at runtime.
+tests/
+
+# Docs — not needed at runtime.
+README.md
+ROADMAP.md
+
+# Python version file — only used by pyenv locally.
+.python-version

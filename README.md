@@ -4,23 +4,38 @@ An MCP server that gives Claude direct access to your GitHub repositories for co
 
 ## Prerequisites
 
-- [Python >= 3.13](https://www.python.org/downloads/)
-- `uv` (Recommended) or `pip`
+- [Docker](https://www.docker.com/products/docker-desktop) (recommended)
+- Or: [Python >= 3.13](https://www.python.org/downloads/) + `uv`
 
 ## Installation
 
-1. Clone the repository:
+Clone the repository:
+
 ```bash
 git clone <your-repo-link>
 cd code-review-mcp
 ```
 
-2. Create a `.venv` and install dependencies:
+### Docker (recommended)
+
+No Python setup needed. Docker handles the environment.
+
+Build the image:
+
 ```bash
-uv sync   # Or: python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt
+docker build -t code-review-mcp .
 ```
 
-3. Create a `.env` file:
+### Local Python
+
+Install dependencies:
+
+```bash
+uv sync
+```
+
+Create a `.env` file:
+
 ```dotenv
 GITHUB_TOKEN=your_personal_access_token
 ```
@@ -28,11 +43,30 @@ GITHUB_TOKEN=your_personal_access_token
 ## Adding to Claude Desktop
 
 Open the config file on macOS:
+
 ```bash
 code ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
-Add the following inside `mcpServers`:
+### Claude Desktop — Docker
+
+The token is passed as an environment variable at runtime — it never goes into the image.
+
+```json
+{
+  "mcpServers": {
+    "github-code-reviewer": {
+      "command": "docker",
+      "args": ["run", "--rm", "-i", "-e", "GITHUB_TOKEN", "code-review-mcp"],
+      "env": {
+        "GITHUB_TOKEN": "your_github_personal_access_token"
+      }
+    }
+  }
+}
+```
+
+### Claude Desktop — Local Python
 
 ```json
 {
